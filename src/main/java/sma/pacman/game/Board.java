@@ -1,43 +1,81 @@
 package sma.pacman.game;
 
-import sma.pacman.game.maze.Maze;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import sma.pacman.game.character.Character;
+import sma.pacman.game.character.EnemyCharacter;
+import sma.pacman.game.character.HeroCharacter;
+import sma.pacman.util.ResourceUtils;
 
-import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Board extends JPanel implements Runnable {
+public class Board extends Game {
+
+    private static final Logger logger = LogManager.getLogger(Board.class.getName());
+
+    public static final int TILE_HEIGHT = 12;
+    public static final int TILE_WIDTH = 12;
+
+    public static final int CHARACTER_HEIGHT = 20;
+    public static final int CHARACTER_WIDTH = 20;
+
+    private String mazeImage;
 
     private Maze maze;
 
-    public Board(Maze maze) {
-        this.maze = maze;
+    private HeroCharacter hero;
+    private List<EnemyCharacter> enemies = new ArrayList<EnemyCharacter>();
 
-        setBackground(Color.BLACK);
-        setDoubleBuffered(true);
+    private List<Character> characters = new ArrayList<Character>();
+
+    public Board() {
+        super();
+
+        mazeImage = "/map.png";
     }
 
-    public void paint(Graphics g){
-        super.paint(g);
+    @Override
+    protected void init() {
+        try {
+            maze = new Maze(ResourceUtils.getImage(mazeImage));
+        } catch (IOException e) {
+            logger.error("Failed to read maze image", e);
+        } catch (MazeException e) {
+            logger.error("Failed to process maze image", e);
+        }
 
-        Graphics2D g2d = (Graphics2D)g;
+        setCanvasSize(new Dimension(maze.getWidth(), maze.getHeight()));
+        setCanvasRatioFractional(false);
 
-        maze.paint(g2d);
+        String[] enemyColors = {"pink", "red", "yellow", "cyan"};
+        for(String enemyColor: enemyColors) {
+            EnemyCharacter enemy = new EnemyCharacter(enemyColor);
+            enemy.spawn(maze.findSpawnPositionFor(enemy));
+            characters.add(enemy);
+        }
 
-        Toolkit.getDefaultToolkit().sync();
-        g.dispose();
+        hero = new HeroCharacter(false);
+        hero.spawn(maze.findSpawnPositionFor(hero));
+        characters.add(hero);
     }
 
-    public void run() {
-        while(true){
-            repaint();
+    @Override
+    protected void update(float elapsedTime) {
+        for(Character character: characters) {
+            character.update(elapsedTime);
         }
     }
 
-    public Integer getDrawWidth() {
-        return maze.getDrawWidth();
+    @Override
+    protected void render(Graphics g, float interpolationTime) {
+        maze.draw(g);
+
+        for(Character character: characters) {
+            character.draw(g);
+        }
     }
 
-    public Integer getDrawHeight() {
-        return maze.getDrawHeight();
-    }
 }
