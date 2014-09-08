@@ -6,7 +6,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 
-public abstract class Game extends JPanel {
+public abstract class Engine extends JPanel {
 
     /* difference between time of update and world step time */
     float localTime = 0f;
@@ -16,8 +16,8 @@ public abstract class Game extends JPanel {
     private Dimension canvasSize;
     private Point canvasPosition;
 
-    /** Creates new form Game */
-    public Game() {
+    /** Creates new form Engine */
+    public Engine() {
         this.canvasSize = new Dimension(800, 600);
         this.canvasRationFractional = true;
 
@@ -103,6 +103,7 @@ public abstract class Game extends JPanel {
             int y = canvasPosition.y;
 
             g.drawImage(image, x, y, width, height, null);
+        } catch (NullPointerException e) {
         } finally {
             g.dispose();
         }
@@ -176,7 +177,7 @@ public abstract class Game extends JPanel {
 //
 //            @Override
 //            public void run() {
-//                Game game = new Game();
+//                Engine game = new Engine();
 //                game.setVisible(true);
 //                game.start(1 / 60f, 5);
 //            }

@@ -2,21 +2,27 @@ package sma.pacman.game.character;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sma.pacman.Direction;
+import sma.pacman.game.Direction;
 import sma.pacman.game.Board;
 import sma.pacman.game.graphics.Animation;
+import sma.pacman.util.PointUtils;
 import sma.pacman.util.ResourceUtils;
 
 import java.awt.*;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Character {
 
+    public interface Listener {
+
+        void nextMoveSet(Direction move);
+
+    }
+
     private static final Logger logger = LogManager.getLogger(Character.class.getName());
 
-    private static final float SPAWN_BLINK_INTERVAL = 0.02f;
+    private static final Float SPAWN_BLINK_INTERVAL = 0.02f;
     private Point position;
 
     private Direction orientation;
@@ -24,25 +30,46 @@ public class Character {
     private Animation currentAnimation;
     private Boolean alive;
 
-    private float lifeTime;
+    private Float lifeTime;
+    private Integer aliveRounds;
 
-    private float spawnProtection;
+    private Boolean spawnProtection = false;
+
+    protected Boolean heroBoost = false;
+
+    protected Set<CharacterEvent> events = new HashSet<CharacterEvent>();
 
     private Map<Direction, Animation> animations = new HashMap<Direction, Animation>();
 
-    public Character() {
-        alive = false;
+    private Direction nextMove;
 
-        spawnProtection = 2f;
+    private Integer score = 0;
+
+    private String name;
+
+    private java.util.List<Listener> listeners = new ArrayList<Listener>();
+
+    public Character(String name) {
+        alive = false;
+        this.name = name;
+    }
+
+    public void addListener(Listener listener) {
+        listeners.add(listener);
     }
 
     public void spawn(Point p) {
         alive = true;
-        lifeTime = 0;
+        lifeTime = 0f;
+        aliveRounds = 0;
 
         position = p;
-        orientation = Direction.DIRECTION_RIGHT;
+        orientation = Direction.RIGHT;
         currentAnimation = animations.get(orientation);
+
+        setSpawnProtection(true);
+
+        events.add(CharacterEvent.SPAWN);
     }
 
     protected void loadAnimations(String name, int frameCount, float frameDelay) {
@@ -111,11 +138,107 @@ public class Character {
         }
     }
 
-    public Boolean hasSpawnProtection() {
-        return lifeTime < spawnProtection;
+    public Integer getAliveRounds() {
+        return aliveRounds;
     }
 
-    public void setSpawnProtection(float spawnProtection) {
-        this.spawnProtection = spawnProtection;
+    public void setSpawnProtection(Boolean state) {
+        if(state) {
+            events.add(CharacterEvent.PROTECTION_ON);
+        }
+        else {
+            events.add(CharacterEvent.PROTECTION_OFF);
+        }
+
+        spawnProtection = state;
+    }
+
+    public Boolean hasSpawnProtection() {
+        return spawnProtection;
+    }
+
+    public Point getPosition() {
+        return position;
+    }
+
+    public void setPosition(Point position) {
+        this.position = position;
+    }
+
+    public void setOrientation(Direction orientation) {
+        this.orientation = orientation;
+        currentAnimation = animations.get(orientation);
+    }
+
+    public void setNextMove(Direction nextMove) {
+        this.nextMove = nextMove;
+        fireNextMoveSet();
+    }
+
+    private void fireNextMoveSet() {
+        for (Listener listener: listeners) {
+            listener.nextMoveSet(nextMove);
+        }
+    }
+
+    public Direction getNextMove() {
+        return nextMove;
+    }
+
+    public Boolean hasNextMove() {
+        return (nextMove != null);
+    }
+
+    public void doNextMove(Boolean blocked) {
+        if(!blocked) {
+            Point newPosition = new Point(position);
+            PointUtils.translateTo(newPosition, nextMove);
+
+            setPosition(newPosition);
+        }
+
+        setOrientation(nextMove);
+
+        nextMove = null;
+        events.clear();
+
+        aliveRounds++;
+    }
+
+    public void setHeroBoost(Boolean state) {
+            if(state) {
+                events.add(CharacterEvent.BOOST_ON);
+            }
+            else {
+                events.add(CharacterEvent.BOOST_OFF);
+            }
+
+            heroBoost = state;
+        }
+
+    public Boolean isAlive() { return alive; }
+
+    public void die() {
+        events.add(CharacterEvent.DEATH);
+
+        alive = false;
+    }
+
+    public void addScore(Integer amount) {
+        score += amount;
+
+        events.add(CharacterEvent.SCORE_UP);
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Set<CharacterEvent> getEvents() {
+        return events;
     }
 }

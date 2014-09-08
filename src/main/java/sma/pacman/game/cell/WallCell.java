@@ -1,7 +1,7 @@
 package sma.pacman.game.cell;
 
-import sma.pacman.Direction;
-import sma.pacman.SecondaryDirection;
+import sma.pacman.game.Direction;
+import sma.pacman.game.SecondaryDirection;
 import sma.pacman.game.character.Character;
 
 import java.awt.*;

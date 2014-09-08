@@ -2,11 +2,10 @@ package sma.pacman.game;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sma.pacman.Direction;
-import sma.pacman.SecondaryDirection;
 import sma.pacman.game.cell.*;
 import sma.pacman.game.character.Character;
 import sma.pacman.util.ColorUtils;
+import sma.pacman.util.PointUtils;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -172,20 +171,7 @@ public class Maze {
     private Cell findCellNeighbor(Cell cell, Direction direction) {
         Point position = new Point(cell.getPosition());
 
-        switch (direction) {
-            case DIRECTION_TOP:
-                position.translate(0, -1);
-                break;
-            case DIRECTION_RIGHT:
-                position.translate(1, 0);
-                break;
-            case DIRECTION_DOWN:
-                position.translate(0, 1);
-                break;
-            case DIRECTION_LEFT:
-                position.translate(-1, 0);
-                break;
-        }
+        PointUtils.translateTo(position, direction);
 
         return getCell(position);
     }
@@ -193,20 +179,7 @@ public class Maze {
     private Cell findCellNeighbor(Cell cell, SecondaryDirection direction) {
         Point position = new Point(cell.getPosition());
 
-        switch (direction) {
-            case SECONDARY_DIRECTION_TOP_RIGHT:
-                position.translate(1, -1);
-                break;
-            case SECONDARY_DIRECTION_BOTTOM_RIGHT:
-                position.translate(1, 1);
-                break;
-            case SECONDARY_DIRECTION_BOTTOM_LEFT:
-                position.translate(-1, 1);
-                break;
-            case SECONDARY_DIRECTION_TOP_LEFT:
-                position.translate(-1, -1);
-                break;
-        }
+        PointUtils.translateTo(position, direction);
 
         return getCell(position);
     }
@@ -231,7 +204,7 @@ public class Maze {
         return true;
     }
 
-    private Boolean isWalkablePositionFor(Point position, Character character) {
+    public Boolean isWalkablePositionFor(Point position, Character character) {
         Cell cell = getCell(position);
         if(cell == null) {
             return false;
@@ -255,6 +228,16 @@ public class Maze {
 
         Collections.shuffle(spawnPositions);
         return spawnPositions.get(0);
+    }
+
+    public Boolean hasBullet(Point position) {
+        Cell cell = getCell(position);
+        return cell.hasBullet();
+    }
+
+    public Bullet consumeBullet(Point position) {
+        Cell cell = getCell(position);
+        return cell.consumeBullet();
     }
 
     public int getWidth() { return gridSize.width * Board.TILE_WIDTH; }

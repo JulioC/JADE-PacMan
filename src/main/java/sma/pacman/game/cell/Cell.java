@@ -2,8 +2,9 @@ package sma.pacman.game.cell;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sma.pacman.Direction;
+import sma.pacman.game.Direction;
 import sma.pacman.game.Board;
+import sma.pacman.game.Bullet;
 import sma.pacman.game.character.Character;
 import sma.pacman.util.ResourceUtils;
 
@@ -50,8 +51,12 @@ public class Cell {
         g.drawImage(image, draw_x, draw_y, tile_width, tile_height, null);
     }
 
-    public Image getSprite() {
-        return image;
+    public Boolean hasBullet() {
+        return false;
+    }
+
+    public Bullet consumeBullet() {
+        return null;
     }
 
     public Boolean isSpawnFor(Character character) {

@@ -1,4 +1,4 @@
-package sma.pacman;
+package sma.pacman.game;
 
 public enum SecondaryDirection {
     SECONDARY_DIRECTION_TOP_RIGHT,
