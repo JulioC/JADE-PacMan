@@ -240,6 +240,10 @@ public class Maze {
         return cell.consumeBullet();
     }
 
+    public int getGridWidth() { return gridSize.width; }
+
+    public int getGridHeight() { return gridSize.height; }
+
     public int getWidth() { return gridSize.width * Board.TILE_WIDTH; }
 
     public int getHeight() { return gridSize.height * Board.TILE_HEIGHT; }

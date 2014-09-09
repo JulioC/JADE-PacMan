@@ -1,44 +1,36 @@
-package sma.pacman.agents.game;
+package sma.pacman.agents.game.behaviour;
 
 import jade.core.AID;
+import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sma.pacman.agents.Protocol;
-import sma.pacman.game.Direction;
+import sma.pacman.agents.game.GameAgent;
 
-public class GameBehaviour extends CyclicBehaviour {
+public class JoinBehaviour extends CyclicBehaviour {
 
-    private static final Logger logger = LogManager.getLogger(GameBehaviour.class.getName());
+    private static final Logger logger = LogManager.getLogger(JoinBehaviour.class.getName());
 
-    @Override
-    public void onStart() {
-        GameAgent gameAgent = (GameAgent) myAgent;
-
-        gameAgent.startGame();
+    public JoinBehaviour(Agent a) {
+        super(a);
     }
 
     @Override
     public void action() {
         ACLMessage msg = myAgent.receive();
 
-        if (msg != null && msg.getContent() != null) {
+        if (msg != null) {
             Boolean handled = false;
 
-            String[] arguments = msg.getContent().split(Protocol.SEPARATOR);
+            String[] arguments = Protocol.parseArguments(msg);
             String action = arguments[0];
 
             switch (msg.getPerformative()) {
-                case ACLMessage.REQUEST:
-                    if(action.equals(Protocol.ACTION_MOVE)) {
-                        actionMove(msg);
-                        handled = true;
-                    }
-                    break;
-                case ACLMessage.QUERY_IF:
-                    if(action.equals(Protocol.ACTION_CAN_MOVE)) {
-                        actionCanMove(msg);
+                case ACLMessage.PROPOSE:
+                    if(action.equals(Protocol.ACTION_JOIN)) {
+                        actionJoin(msg);
                         handled = true;
                     }
                     break;
@@ -53,30 +45,27 @@ public class GameBehaviour extends CyclicBehaviour {
         }
     }
 
-    private void actionMove(ACLMessage msg) {
+    private void actionJoin(ACLMessage msg) {
         ACLMessage reply = msg.createReply();
         AID player = msg.getSender();
 
-        String[] arguments = msg.getContent().split(Protocol.SEPARATOR);
-        Direction direction = Direction.valueOf(arguments[1]);
+        String[] arguments = Protocol.parseArguments(msg);
+        String type = arguments[1];
+        String variation = arguments[2];
 
         GameAgent gameAgent = (GameAgent) myAgent;
 
         try {
-            gameAgent.movePlayer(player, direction);
+            gameAgent.registerPlayer(player, type, variation);
 
-            reply.setPerformative(ACLMessage.AGREE);
+            reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
             reply.setContent(Protocol.MESSAGE_OK);
         } catch (Exception e) {
-            reply.setPerformative(ACLMessage.FAILURE);
+            reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
             reply.setContent(e.getMessage());
         }
 
         myAgent.send(reply);
-    }
-
-    private void actionCanMove(ACLMessage msg) {
-
     }
 
     private void actionDefault(ACLMessage msg) {

@@ -1,4 +1,4 @@
-package sma.pacman.agents.game;
+package sma.pacman.agents.game.behaviour;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -11,6 +11,7 @@ import jade.lang.acl.ACLMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sma.pacman.agents.Protocol;
+import sma.pacman.agents.game.GameAgent;
 
 import java.util.ArrayList;
 import java.util.List;

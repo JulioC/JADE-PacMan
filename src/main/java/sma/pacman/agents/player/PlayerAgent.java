@@ -10,18 +10,27 @@ import jade.domain.FIPAException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sma.pacman.agents.Protocol;
+import sma.pacman.agents.player.behaviour.JoinBehaviour;
+import sma.pacman.agents.player.behaviour.MoveBehaviour;
+import sma.pacman.agents.player.behaviour.PlayBehaviour;
+import sma.pacman.agents.player.behaviour.PreGameBehaviour;
+
+import java.awt.*;
 
 public class PlayerAgent extends Agent {
 
     private static final Logger logger = LogManager.getLogger(PlayerAgent.class.getName());
 
     private static final String STATE_JOIN = "join";
-    private static final String STATE_WAITING = "waiting";
+    private static final String STATE_PREGAME = "pre-game";
     private static final String STATE_PLAYING = "playing";
 
     private AID gameAgent;
 
     protected MoveBehaviour moveBehaviour;
+
+    protected Integer[][] map;
+    protected Point position;
 
     public PlayerAgent() {
         moveBehaviour = new MoveBehaviour(this);
@@ -37,11 +46,11 @@ public class PlayerAgent extends Agent {
 
         FSMBehaviour fsm = new FSMBehaviour();
         fsm.registerFirstState(new JoinBehaviour(this, type, variation), STATE_JOIN);
-        fsm.registerState(new WaitBehaviour(this), STATE_WAITING);
+        fsm.registerState(new PreGameBehaviour(this), STATE_PREGAME);
         fsm.registerState(new PlayBehaviour(this, moveBehaviour), STATE_PLAYING);
 
-        fsm.registerDefaultTransition(STATE_JOIN, STATE_WAITING);
-        fsm.registerDefaultTransition(STATE_WAITING, STATE_PLAYING);
+        fsm.registerDefaultTransition(STATE_JOIN, STATE_PREGAME);
+        fsm.registerDefaultTransition(STATE_PREGAME, STATE_PLAYING);
 
         addBehaviour(fsm);
 
@@ -86,9 +95,27 @@ public class PlayerAgent extends Agent {
         return gameAgent;
     }
 
-    public void roundUpdate() {
+    public void roundUpdate(Point position) {
+        this.position = position;
+
         moveBehaviour.roundUpdate();
         moveBehaviour.restart();
+    }
+
+    public Integer[][] getMap() {
+        return map;
+    }
+
+    public void setMap(Integer[][] map) {
+        this.map = map;
+    }
+
+    public void setPosition(Point position) {
+        this.position = position;
+    }
+
+    public Point getPosition() {
+        return position;
     }
 
 }

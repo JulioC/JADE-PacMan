@@ -1,5 +1,7 @@
 package sma.pacman.agents.player;
 
+import sma.pacman.agents.player.behaviour.RandomMoveBehaviour;
+
 public class RandomPlayerAgent extends PlayerAgent {
 
 

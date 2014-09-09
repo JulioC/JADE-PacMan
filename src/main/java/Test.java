@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sma.pacman.agents.Protocol;
 import sma.pacman.agents.game.GameAgent;
+import sma.pacman.agents.player.GhostPlayerAgent;
 import sma.pacman.agents.player.RandomPlayerAgent;
 import sma.pacman.agents.player.PlayerAgent;
 
@@ -18,10 +19,10 @@ public class Test {
 
         addAgent(containerController, "game", GameAgent.class.getName(), null);
 
-        addAgent(containerController, "pacman", RandomPlayerAgent.class.getName(),
+        addAgent(containerController, "pacman", PlayerAgent.class.getName(),
                 new Object[]{Protocol.PLAYER_HERO, Protocol.PLAYER_HERO_MALE});
 
-        addAgent(containerController, "cyan-ghost", RandomPlayerAgent.class.getName(),
+        addAgent(containerController, "cyan-ghost", GhostPlayerAgent.class.getName(),
                 new Object[]{Protocol.PLAYER_ENEMY, Protocol.PLAYER_ENEMY_CYAN});
 
         addAgent(containerController, "red-ghost", RandomPlayerAgent.class.getName(),

@@ -1,10 +1,7 @@
-package sma.pacman.agents.player;
+package sma.pacman.agents.player.behaviour;
 
 import jade.core.Agent;
-import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.ParallelBehaviour;
-import jade.lang.acl.ACLMessage;
-import sma.pacman.agents.Protocol;
 
 public class PlayBehaviour extends ParallelBehaviour {
 

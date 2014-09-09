@@ -1,4 +1,4 @@
-package sma.pacman.agents.player;
+package sma.pacman.agents.player.behaviour;
 
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
@@ -6,6 +6,7 @@ import jade.lang.acl.ACLMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sma.pacman.agents.Protocol;
+import sma.pacman.agents.player.PlayerAgent;
 
 public class JoinBehaviour extends Behaviour {
 
@@ -32,7 +33,7 @@ public class JoinBehaviour extends Behaviour {
         if (msg != null) {
             Boolean handled = false;
 
-            String[] arguments = msg.getContent().split(Protocol.SEPARATOR);
+            String[] arguments = Protocol.parseArguments(msg);
             String action = arguments[0];
 
             switch (msg.getPerformative()) {
@@ -63,7 +64,7 @@ public class JoinBehaviour extends Behaviour {
 
     private void actionPropose(ACLMessage msg) {
         if(!waitingReply) {
-            String[] arguments = msg.getContent().split(Protocol.SEPARATOR);
+            String[] arguments = Protocol.parseArguments(msg);
             String game = arguments[1];
 
             if(game.equals(Protocol.GAME_NAME)) {

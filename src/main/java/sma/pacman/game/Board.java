@@ -253,6 +253,32 @@ public class Board extends Engine {
         return true;
     }
 
+    public Integer[][] getMapArrayFor(Character character) {
+        Point p = new Point();
+
+        Integer height = maze.getGridHeight();
+        Integer width = maze.getGridWidth();
+        Integer[][] map = new Integer[width][height];
+
+        for(p.x = 0; p.x < width; ++p.x) {
+            for(p.y = 0; p.y < height; ++p.y) {
+                Integer value;
+
+                if(maze.isWalkablePositionFor(p, character)) {
+                    value = 0;
+                }
+                else {
+                    // todo: add other tile types
+                    value = 1;
+                }
+
+                map[p.x][p.y] = value;
+            }
+        }
+
+        return map;
+    }
+
 
 
 

@@ -1,7 +1,6 @@
-package sma.pacman.agents.player;
+package sma.pacman.agents.player.behaviour;
 
 import jade.core.Agent;
-import jade.core.behaviours.TickerBehaviour;
 import sma.pacman.game.Direction;
 
 import java.util.Random;

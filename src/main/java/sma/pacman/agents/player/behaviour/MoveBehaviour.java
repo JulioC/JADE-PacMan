@@ -1,14 +1,15 @@
-package sma.pacman.agents.player;
+package sma.pacman.agents.player.behaviour;
 
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import sma.pacman.agents.Protocol;
+import sma.pacman.agents.player.PlayerAgent;
 import sma.pacman.game.Direction;
 
 public class MoveBehaviour extends CyclicBehaviour {
 
-    private Boolean moveSent = false;
+    private Boolean needMove = true;
 
     public MoveBehaviour(Agent a) {
         super(a);
@@ -16,7 +17,7 @@ public class MoveBehaviour extends CyclicBehaviour {
 
     @Override
     public final void action() {
-        if(!moveSent) {
+        if(needMove) {
             Direction move = generateMove();
             if(move != null) {
                 sendMove(move);
@@ -40,10 +41,10 @@ public class MoveBehaviour extends CyclicBehaviour {
                 direction.toString()));
         myAgent.send(msg);
 
-        moveSent = true;
+        needMove = false;
     }
 
     public void roundUpdate() {
-        moveSent = false;
+        needMove = true;
     }
 }

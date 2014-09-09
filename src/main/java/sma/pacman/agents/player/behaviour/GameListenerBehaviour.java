@@ -1,12 +1,14 @@
-package sma.pacman.agents.player;
+package sma.pacman.agents.player.behaviour;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sma.pacman.agents.Protocol;
-import sma.pacman.agents.game.GameAgent;
-import sma.pacman.game.Direction;
+import sma.pacman.agents.player.PlayerAgent;
+
+import java.awt.*;
+import java.util.Scanner;
 
 public class GameListenerBehaviour extends CyclicBehaviour {
 
@@ -19,7 +21,7 @@ public class GameListenerBehaviour extends CyclicBehaviour {
         if (msg != null) {
             Boolean handled = false;
 
-            String[] arguments = msg.getContent().split(Protocol.SEPARATOR);
+            String[] arguments = Protocol.parseArguments(msg);
             String action = arguments[0];
 
             switch (msg.getPerformative()) {
@@ -63,11 +65,16 @@ public class GameListenerBehaviour extends CyclicBehaviour {
     private void actionGameEvent(ACLMessage msg) {
         PlayerAgent playerAgent = (PlayerAgent) myAgent;
 
-        String[] arguments = msg.getContent().split(Protocol.SEPARATOR);
+        String[] arguments = Protocol.parseArguments(msg);
         String event = arguments[1];
 
         if(event.equals(Protocol.EVENT_ROUND_UPDATE)) {
-            playerAgent.roundUpdate();
+            Scanner scanner = new Scanner(arguments[2]);
+            Integer x = scanner.nextInt();
+            Integer y = scanner.nextInt();
+
+            Point position = new Point(x, y);
+            playerAgent.roundUpdate(position);
         }
 
     }

@@ -6,6 +6,9 @@ import jade.core.behaviours.*;
 import jade.lang.acl.ACLMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sma.pacman.agents.game.behaviour.GameBehaviour;
+import sma.pacman.agents.game.behaviour.InviteBehaviour;
+import sma.pacman.agents.game.behaviour.JoinBehaviour;
 import sma.pacman.game.Board;
 import sma.pacman.game.Direction;
 import sma.pacman.game.character.*;
@@ -13,6 +16,7 @@ import sma.pacman.game.character.Character;
 import sma.pacman.agents.Protocol;
 import sma.pacman.ui.Game;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,7 +77,7 @@ public class GameAgent extends Agent {
     public void startGame() {
         board.start();
 
-        notifyPlayers(Protocol.EVENT_GAME_STARTED);
+        notifyGameStarted();
     }
 
     public void registerPlayer(AID player, String type, String variation) throws Exception {
@@ -119,17 +123,23 @@ public class GameAgent extends Agent {
         return players.containsKey(player);
     }
 
-    public void notifyPlayers(String event) {
-        ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-        msg.setContent(Protocol.build(
-                Protocol.ACTION_GAME_EVENT,
-                event));
-
+    public void notifyGameStarted() {
         for(AID player: players.keySet()) {
-            msg.addReceiver(player);
-        }
+            Character character = players.get(player);
 
-        send(msg);
+            ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+            msg.addReceiver(player);
+
+            Point position = character.getPosition();
+            String positionString = position.x + " " + position.y;
+
+            msg.setContent(Protocol.build(
+                    Protocol.ACTION_GAME_EVENT,
+                    Protocol.EVENT_GAME_STARTED,
+                    positionString));
+
+            send(msg);
+        }
     }
 
     public void notifyRoundUpdate() {
@@ -139,17 +149,21 @@ public class GameAgent extends Agent {
             ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
             msg.addReceiver(player);
 
-            msg.setContent(Protocol.build(
-                    Protocol.ACTION_GAME_EVENT,
-                    Protocol.EVENT_ROUND_UPDATE));
-            send(msg);
-
             for(CharacterEvent event: character.getEvents()) {
                 msg.setContent(Protocol.build(
                         Protocol.ACTION_CHARACTER_EVENT,
                         event.toString()));
                 send(msg);
             }
+
+            Point position = character.getPosition();
+            String positionString = position.x + " " + position.y;
+
+            msg.setContent(Protocol.build(
+                    Protocol.ACTION_GAME_EVENT,
+                    Protocol.EVENT_ROUND_UPDATE,
+                    positionString));
+            send(msg);
         }
     }
 
@@ -166,6 +180,11 @@ public class GameAgent extends Agent {
 
         Character character = players.get(player);
         character.setNextMove(direction);
+    }
+
+    public String buildMap(AID player) {
+        Character character = players.get(player);
+        return Protocol.buildMap(board.getMapArrayFor(character));
     }
 
 }
